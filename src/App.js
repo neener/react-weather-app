@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import fetchJsonp from 'fetch-jsonp';
+import { connect } from 'react-redux';
 import logo from './logo.svg';
 import './App.css';
 import Forecast from './components/Forecast'
@@ -7,37 +7,21 @@ import MinutelyForecast from './components/MinutelyForecast'
 import DailyForecast from './components/DailyForecast'
 import Navbar from './components/Navbar'
 
-const APIURL = `https://api.darksky.net/forecast/${process.env.REACT_APP_DARK_SKY_KEY}/`
+import { changeRoute } from './actions/routeActions';
+import { stopFetchingData } from './actions/fetchingDataActions';
+import { fetchWeatherData } from  './actions/weatherDataActions';
 
 class App extends Component {
-  constructor(){
-    super()
-
-    this.state = {
-      fetchingData: true,
-      weatherData: {},
-      forcastKey: 'currently'
-    }
-  }
 
   componentDidMount() {
-    navigator.geolocation.getCurrentPosition(position => {
-      const { latitude, longitude } = position.coords
-      
-      fetchJsonp(`${APIURL}${latitude},${longitude}`)
-        .then(response => response.json())
-        .then(weatherData => this.setState({ 
-          fetchingData: false,
-          weatherData }))
-    });
+    this.props.fetchWeatherData()
   }
 
-  handleForecastChange = forecastKey => this.setState({ forecastKey: forecastKey})
+  handleRouteChange = routeName => this.props.changeRoute({ routeName: routeName})
 
   render() {
-    const { fetchingData, weatherData, forecastKey } = this.state
-
-    const forecast = weatherData[forecastKey]
+    const { weatherData, fetchingData, routeName } = this.props
+    const forecast = weatherData[routeName]
 
     return (
       <div className="App">
@@ -50,21 +34,21 @@ class App extends Component {
             <img src={logo} className="App-logo" alt="logo" />
             :
             <div>
-              <Navbar changeForecast={this.handleForecastChange} />
-              {forecastKey === 'currently' && 
+              <Navbar changeRoute={this.handleRouteChange} />
+              {routeName === 'currently' && 
                 <div>
                   <h2>Current Forecast</h2>
                   <Forecast forecast={forecast} />
                 </div>
               }
-              {forecastKey === 'minutely' && <MinutelyForecast forecastData={forecast.data} />}
-              {forecastKey === 'hourly' && 
+              {routeName === 'minutely' && <MinutelyForecast forecastData={forecast.data} />}
+              {routeName === 'hourly' && 
                 <div>
                   <h2>Hourly Forecast</h2>
                   {forecast.data.map((forecast, index) => <Forecast key={index} forecast={forecast} />)}
                 </div>
               }
-              {forecastKey === 'daily' && <DailyForecast forecastData={forecast.data} />}
+              {routeName === 'daily' && <DailyForecast forecastData={forecast.data} />}
             </div>
           }
         </div>
@@ -73,5 +57,15 @@ class App extends Component {
   }
 }
 
-export default App;
+export default connect(
+  state => ({
+    fetchingData: state.fetchingData,
+    routeName: state.route.routeName,
+    weatherData: state.weatherData
+  }), {
+    changeRoute,
+    stopFetchingData,
+    fetchWeatherData
+  }
+)(App);
 
