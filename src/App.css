@@ -9,13 +9,38 @@
 
 .App-header {
   background-color: #222;
-  height: 150px;
+  height: 60px;
   padding: 20px;
   color: white;
 }
 
 .App-intro {
   font-size: large;
+  padding-top: 20px;
+}
+
+.nav-button{
+  border: 1px solid #d9d9d9;
+  color: #cc99ff;
+  background: black;
+  margin: 12px;
+  padding: 8px;
+}
+
+.nav-button:hover{
+  background: white;
+  border: 1px solid #d9d9d9;
+}
+
+.nav_button:focus{
+  outline: 0;
+}
+
+.forecast-card {
+  border: solid 1px black;
+  background: #e6e6ff;
+  margin: 32px;
+  padding: 16px;
 }
 
 @keyframes App-logo-spin {
